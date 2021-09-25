@@ -11,6 +11,7 @@ public class Menu {
         System.out.println("ls_name_asc - 제목순 정렬");
         System.out.println("ls_name_desc - 제목역순 정렬");
         System.out.println("ls_date - 날짜순 정렬");
+        System.out.println("find <키워드> - <키워드>를 포함하는 모든 항목 출력");
         System.out.println("exit - 종료");
     }
     

@@ -7,6 +7,8 @@ import com.todo.service.TodoSortByName;
 
 public class TodoList {
 	private List<TodoItem> list;
+	
+	
 
 	public TodoList() {
 		this.list = new ArrayList<TodoItem>();
