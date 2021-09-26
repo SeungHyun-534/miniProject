@@ -36,7 +36,9 @@ public class TodoMain {
 			case "ls":
 				TodoUtil.listAll(l);
 				break;
-
+			case "ls_cate":
+				TodoUtil.ls_cate(l);
+				break;
 			case "ls_name_asc":
 				l.sortByName();
 				isList = true;
@@ -52,6 +54,10 @@ public class TodoMain {
 				l.sortByDate();
 				isList = true;
 				break;
+			case "ls_date_desc":
+				l.reverseByDate();
+				isList = true;
+				break;
 
 			case "exit":
 				quit = true;
@@ -63,12 +69,15 @@ public class TodoMain {
 			case "find":
 				TodoUtil.findItem(l, sc.next());
 				break;
+			case "find_cate":
+				TodoUtil.findByCategory(l, sc.next());
+				break;
 			default:
 				System.out.println("정확한 명령어를 입력하세요. (도움말 - help)");
 				break;
 			}
 			
-			if(isList) l.listAll();
+			if(isList) TodoUtil.listAll(l);;
 		} while (!quit);
 		TodoUtil.saveList(l, "todolist.txt");
 	}

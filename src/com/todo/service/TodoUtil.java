@@ -141,4 +141,36 @@ public class TodoUtil {
 		}
 		System.out.println("총 "+ count + "개의 항목을 찾았습니다.");
 	}
+	
+	public static void findByCategory(TodoList l,String keyword) {
+		int no = 1, count = 0;
+		for(TodoItem item : l.getList()) {
+			if(item.getCategory().indexOf(keyword) != -1) {
+				System.out.println(no+". [" + item.getCategory() +"] "+item.getTitle()+" - "+ item.getDesc() + " - "+ item.getDue_date()+" - "+item.getCurrent_date());
+				++count;
+			}
+			++no;
+		}
+		System.out.println("총 "+ count + "개의 항목을 찾았습니다.");
+	}
+	
+	public static void ls_cate(TodoList l) {
+		HashSet<String> cate = new HashSet<String>();
+		for(TodoItem item : l.getList()) {
+			cate.add(item.getCategory());
+		}
+		int count = 0;
+		for(String category : cate) {
+			if(count == cate.size()-1) {
+				System.out.println(category);
+			}
+			else {
+				System.out.print(category+" / ");
+			}
+			++count;
+		}
+		System.out.println("총 "+count+"개의 카테고리가 등록되어 있습니다.");
+	}
+	
+	
 }

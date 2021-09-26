@@ -52,6 +52,11 @@ public class TodoList {
 	public void sortByDate() {
 		Collections.sort(list, new TodoSortByDate());
 	}
+	
+	public void reverseByDate() {
+		Collections.sort(list, new TodoSortByDate());
+		Collections.reverse(list);
+	}
 
 	public int indexOf(TodoItem t) {
 		return list.indexOf(t);
