@@ -10,6 +10,9 @@ public class TodoItem {
     private String current_date;
     private String category;
     private String due_date;
+    private int is_checked;
+    private int rate;
+    private int is_favorite;
 
 
     public TodoItem(String title, String desc,String category, String due_date){
@@ -82,6 +85,32 @@ public class TodoItem {
 	}
 	
 	public String toString() {
-		return id+". [" + getCategory() +"] "+getTitle()+" - "+ getDesc() + " - "+ getDue_date()+" - "+getCurrent_date();
+		String check = is_checked == 1?"√":Integer.toString(getRate())+"%";
+		String star = is_favorite == 1 ?"★":"☆";
+		return "[" + star +"]"+id+". [" + getCategory() +"] [" + check  +"]"+getTitle()+" - "+ getDesc() + " - "+ getDue_date()+" - "+getCurrent_date();
+	}
+
+	public int getIs_checked() {
+		return is_checked;
+	}
+
+	public void setIs_checked(int is_checked) {
+		this.is_checked = is_checked;
+	}
+
+	public int getRate() {
+		return rate;
+	}
+
+	public void setRate(int rate) {
+		this.rate = rate;
+	}
+
+	public int getIs_favorite() {
+		return is_favorite;
+	}
+
+	public void setIs_favorite(int is_favorite) {
+		this.is_favorite = is_favorite;
 	}
 }

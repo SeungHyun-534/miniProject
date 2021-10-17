@@ -12,7 +12,7 @@ public class TodoMain {
 	
 		Scanner sc = new Scanner(System.in);
 		TodoList l = new TodoList();
-		l.importData("todolist.txt");
+		
 		boolean quit = false;
 		do {
 			Menu.prompt();
@@ -24,7 +24,7 @@ public class TodoMain {
 				break;
 			
 			case "del":
-				TodoUtil.deleteItem(l);
+				TodoUtil.deleteItem(l,sc);
 				break;
 				
 			case "edit":
@@ -69,6 +69,15 @@ public class TodoMain {
 				break;
 			case "find_cate":
 				TodoUtil.findCateList(l, sc.next());
+				break;
+			case "comp":
+				TodoUtil.completeItem(l, sc);
+				break;
+			case "ls_comp":
+				TodoUtil.listChecked(l);
+				break;
+			case "ls_favorite":
+				TodoUtil.listFavorite(l);
 				break;
 			default:
 				System.out.println("정확한 명령어를 입력하세요. (도움말 - help)");

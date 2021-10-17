@@ -29,26 +29,41 @@ public class TodoUtil {
 		sc.nextLine();
 		desc = sc.nextLine().trim();
 		
+		System.out.print("완료 (0 or 1)> ");
+		int is_checked = sc.nextInt();
+		
+		System.out.print("즐겨찾기 (0 or 1) > ");
+		int is_favorite = sc.nextInt();
+		
+		int rate;
+		if(is_checked == 0) {
+			System.out.print("완수율 (0~100) > ");
+			rate = sc.nextInt();
+		}
+		else rate = 100;
+		
 		System.out.print("마감일자 > ");
 		String due_date = sc.next().trim();
-		
-		if(list.addItem(new TodoItem(title,desc,category,due_date))>0)
+		TodoItem i = new TodoItem(title,desc,category,due_date);
+		i.setIs_checked(is_checked);
+		i.setIs_favorite(is_favorite);
+		i.setRate(rate);
+		if(list.addItem(i)>0)
 			System.out.println("추가되었습니다.");
 	}
 
-	public static void deleteItem(TodoList l) {
+	public static void deleteItem(TodoList l,Scanner sc) {
 		
 		System.out.print("[항목 삭제]\n 삭제할 항목의 번호를 입력하시오 > ");
-		Scanner sc = new Scanner(System.in);
-		int no = sc.nextInt();
-		TodoItem item = l.getList().get(no-1);
-		
-		if(l.deleteItem(no)>0) {
-			System.out.println("삭제되었습니다.");
+		while(sc.hasNextInt()) {
+			int no = sc.nextInt();
+			
+			if(l.deleteItem(no)>0) {
+				System.out.println(no + "번 항목 삭제되었습니다. \n");
+			}
 		}
-		
+		sc.nextLine();
 	}
-
 
 	public static void updateItem(TodoList l) {
 		
@@ -76,9 +91,25 @@ public class TodoUtil {
 		System.out.print("새 마감일자 > ");
 		String new_due_date = sc.next().trim();
 		
-		TodoItem t = new TodoItem(new_title,new_description,new_category,new_due_date);
-		t.setId(index);
-		if(l.updateItem(t)>0)
+		System.out.print("완료 (0 or 1)> ");
+		int is_checked = sc.nextInt();
+		
+		System.out.print("즐겨찾기 (0 or 1) > ");
+		int is_favorite = sc.nextInt();
+		
+		int rate;
+		if(is_checked == 0) {
+			System.out.print("완수율 (0~100) > ");
+			rate = sc.nextInt();
+		}
+		else rate = 100;
+		
+		TodoItem i = new TodoItem(new_title,new_description,new_category,new_due_date);
+		i.setIs_checked(is_checked);
+		i.setIs_favorite(is_favorite);
+		i.setRate(rate);
+		i.setId(index);
+		if(l.updateItem(i)>0)
 			System.out.println("수정되었습니다.");
 
 	}
@@ -95,6 +126,34 @@ public class TodoUtil {
 		for (TodoItem item : l.getOrderedList(orderby,ordering)) {
 			System.out.println(item.toString());
 		}
+	}
+	
+	public static void completeItem(TodoList l, Scanner sc) {
+		int index;
+		while(sc.hasNextInt()) {
+			index = sc.nextInt();
+			l.completeItem(index);
+			System.out.println(index + "번 항목 완료 체크하였습니다.\n");
+		}
+		sc.nextLine();
+	}
+	
+	public static void listChecked(TodoList l) {
+		int count = 0;
+		for(TodoItem item : l.getListChecked()) {
+			System.out.println(item.toString());
+			count++;
+		}
+		System.out.println("총 "+ count + "개의 항목이 완료되었습니다.");
+	}
+	
+	public static void listFavorite(TodoList l) {
+		int count = 0;
+		for(TodoItem item : l.getListFavorite()) {
+			System.out.println(item.toString());
+			count++;
+		}
+		System.out.println("총 "+ count + "개의 항목이 완료되었습니다.");
 	}
 	
 	public static void saveList(TodoList l, String filename) {
@@ -154,7 +213,7 @@ public class TodoUtil {
 			System.out.print(item+" ");
 			count++;
 		}
-		System.out.println("총 "+count+"개의 카테고리가 등록되어 있습니다.");
+		System.out.println("\n총 "+count+"개의 카테고리가 등록되어 있습니다.");
 	}
 	
 	

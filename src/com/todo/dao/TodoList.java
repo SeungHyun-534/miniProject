@@ -19,17 +19,24 @@ public class TodoList {
 	}
 
 	public int addItem(TodoItem t) {
-		String sql = "insert into list (title, memo, category, current_date,due_date)"
-				+"values(?,?,?,?,?);";
+		String sql = "insert into list (title, memo, current_date,due_date,is_checked,is_favorite,rate)"
+				+"values(?,?,?,?,?,?,?);";
+		String sql2 = "insert into cate (category) values(?);";
 		PreparedStatement pstmt;
 		int count=0;
 		try {
 			pstmt = conn.prepareStatement(sql);
 			pstmt.setString(1, t.getTitle());
 			pstmt.setString(2, t.getDesc());
-			pstmt.setString(3, t.getCategory());
-			pstmt.setString(4, t.getCurrent_date());
-			pstmt.setString(5, t.getDue_date());
+			pstmt.setString(3, t.getCurrent_date());
+			pstmt.setString(4, t.getDue_date());
+			pstmt.setInt(5, t.getIs_checked());
+			pstmt.setInt(6, t.getIs_favorite());
+			pstmt.setInt(7, t.getRate());
+			count = pstmt.executeUpdate();
+			pstmt.close();
+			pstmt = conn.prepareStatement(sql2);
+			pstmt.setString(1, t.getCategory());
 			count = pstmt.executeUpdate();
 			pstmt.close();
 		}catch(SQLException e) {
@@ -39,18 +46,26 @@ public class TodoList {
 	}
 	
 	public int updateItem(TodoItem t) {
-		String sql = "update list set title=?, memo=?, category=?, current_date=?,due_date=?"
-				+"where id = ?;";
+		String sql = "update list set title=?, memo=?, current_date=?, due_date=? , is_checked=?, is_favorite=?, rate = ?"
+				+"where id = ?;" ;
+		String sql2 = "update cate set category=? where id = ?;";
 		PreparedStatement pstmt;
 		int count = 0;
 		try {
 			pstmt = conn.prepareStatement(sql);
 			pstmt.setString(1, t.getTitle());
 			pstmt.setString(2, t.getDesc());
-			pstmt.setString(3, t.getCategory());
-			pstmt.setString(4, t.getCurrent_date());
-			pstmt.setString(5, t.getDue_date());
-			pstmt.setInt(6, t.getId());
+			pstmt.setString(3, t.getCurrent_date());
+			pstmt.setString(4, t.getDue_date());
+			pstmt.setInt(5, t.getIs_checked());
+			pstmt.setInt(6, t.getIs_favorite());
+			pstmt.setInt(7, t.getRate());
+			pstmt.setInt(8, t.getId());
+			count = pstmt.executeUpdate();
+			pstmt.close();
+			pstmt = conn.prepareStatement(sql2);
+			pstmt.setString(1, t.getCategory());
+			pstmt.setInt(2, t.getId());
 			count = pstmt.executeUpdate();
 			pstmt.close();
 		}catch(SQLException e) {
@@ -77,9 +92,14 @@ public class TodoList {
 
 	public int deleteItem(int index) {
 		String sql = "delete from list where id=?;";
+		String sql2 =  "delete from cate where id=?;";
 		PreparedStatement pstmt;
 		int count=0;
 		try {
+			pstmt = conn.prepareStatement(sql);
+			pstmt.setInt(1, index);
+			count = pstmt.executeUpdate();
+			pstmt.close();
 			pstmt = conn.prepareStatement(sql);
 			pstmt.setInt(1, index);
 			count = pstmt.executeUpdate();
@@ -90,18 +110,12 @@ public class TodoList {
 		return count;
 	}
 
-	void editItem(TodoItem t, TodoItem updated) {
-		int index = list.indexOf(t);
-		list.remove(index);
-		list.add(updated);
-	}
-
 	public ArrayList<TodoItem> getList() {
 		ArrayList<TodoItem> list = new ArrayList<TodoItem>();
 		Statement stmt;
 		try {
 			stmt = conn.createStatement();
-			String sql = "SELECT * FROM list";
+			String sql = "SELECT * FROM list inner join cate on list.id = cate.id";
 			ResultSet  rs = stmt.executeQuery(sql);
 			while(rs.next()) {
 				int id = rs.getInt("id");
@@ -110,11 +124,16 @@ public class TodoList {
 				String description = rs.getString("memo");
 				String due_date = rs.getString("due_date");
 				String current_date = rs.getString("current_date");
+				int is_checked = rs.getInt("is_checked");
+				int is_favorite  = rs.getInt("is_favorite");
+				int rate = rs.getInt("rate");
 				TodoItem t = new TodoItem(title,description,category,due_date);
 				t.setId(id);
 				t.setCurrent_date(current_date);
+				t.setIs_checked(is_checked);
+				t.setIs_favorite(is_favorite);
+				t.setRate(rate);
 				list.add(t);
-				
 			}
 			rs.close();
 			stmt.close();
@@ -124,12 +143,13 @@ public class TodoList {
 		return list;
 	}
 	
+	
 	public ArrayList<TodoItem> getList(String keyword){
 		ArrayList<TodoItem> list =  new ArrayList<TodoItem>();
 		PreparedStatement pstmt;
 		keyword = "%"+keyword+"%";
 		try {
-			String sql = "select * from list where title like ? or memo like ?";
+			String sql = "select * from list inner join cate on list.id = cate.id where title like ? or memo like ?";
 			pstmt = conn.prepareStatement(sql);
 			pstmt.setString(1,keyword);
 			pstmt.setString(2, keyword);
@@ -141,8 +161,14 @@ public class TodoList {
 				String description = rs.getString("memo");
 				String due_date = rs.getString("due_date");
 				String current_date = rs.getString("current_date");
+				int is_checked = rs.getInt("is_checked");
+				int is_favorite  = rs.getInt("is_favorite");
+				int rate = rs.getInt("rate");
 				TodoItem t = new TodoItem(title,description,category,due_date);
 				t.setId(id);
+				t.setIs_checked(is_checked);
+				t.setIs_favorite(is_favorite);
+				t.setRate(rate);
 				t.setCurrent_date(current_date);
 				list.add(t);
 				
@@ -159,7 +185,7 @@ public class TodoList {
 		Statement stmt;
 		try {
 			stmt = conn.createStatement();
-			String sql = "select * from list order by "+orderby;
+			String sql = "select * from list order inner join cate on list.id = cate.id by "+orderby;
 			if(ordering == 0) {
 				sql += "  desc";
 			}
@@ -171,8 +197,14 @@ public class TodoList {
 				String description = rs.getString("memo");
 				String due_date = rs.getString("due_date");
 				String current_date = rs.getString("current_date");
+				int is_checked = rs.getInt("is_checked");
+				int is_favorite  = rs.getInt("is_favorite");
+				int rate = rs.getInt("rate");
 				TodoItem t = new TodoItem(title,description,category,due_date);
 				t.setId(id);
+				t.setIs_checked(is_checked);
+				t.setIs_favorite(is_favorite);
+				t.setRate(rate);
 				t.setCurrent_date(current_date);
 				list.add(t);
 				
@@ -189,7 +221,7 @@ public class TodoList {
 		Statement stmt;
 		try {
 			stmt = conn.createStatement();
-			String sql = "select distinct category from list";
+			String sql = "select distinct category from cate";
 			ResultSet rs = stmt.executeQuery(sql);
 			while(rs.next()) {
 				list.add(rs.getString("category"));
@@ -205,7 +237,7 @@ public class TodoList {
 		ArrayList<TodoItem> list =  new ArrayList<TodoItem>();
 		PreparedStatement pstmt;
 		try {
-			String sql = "select * from list where category = ?";
+			String sql = "select * from list inner join cate on list.id = cate.id where category = ?";
 			pstmt = conn.prepareStatement(sql);
 			pstmt.setString(1, keyword);
 			ResultSet rs = pstmt.executeQuery();
@@ -216,8 +248,14 @@ public class TodoList {
 				String description = rs.getString("memo");
 				String due_date = rs.getString("due_date");
 				String current_date = rs.getString("current_date");
+				int is_checked = rs.getInt("is_checked");
+				int is_favorite  = rs.getInt("is_favorite");
+				int rate = rs.getInt("rate");
 				TodoItem t = new TodoItem(title,description,category,due_date);
 				t.setId(id);
+				t.setIs_checked(is_checked);
+				t.setIs_favorite(is_favorite);
+				t.setRate(rate);
 				t.setCurrent_date(current_date);
 				list.add(t);
 				
@@ -227,6 +265,76 @@ public class TodoList {
 			e.printStackTrace();
 		}
 		return list;
+	}
+	
+	public ArrayList<TodoItem> getListChecked(){
+		ArrayList<TodoItem> list =  new ArrayList<TodoItem>();
+		PreparedStatement pstmt;
+		try {
+			String sql = "select * from list inner join cate on list.id = cate.id where list.is_checked = 1";
+			pstmt = conn.prepareStatement(sql);
+			ResultSet rs = pstmt.executeQuery();
+			while(rs.next()) {
+				int id = rs.getInt("id");
+				String category = rs.getString("category");
+				String title = rs.getString("title");
+				String description = rs.getString("memo");
+				String due_date = rs.getString("due_date");
+				String current_date = rs.getString("current_date");
+				int is_checked = rs.getInt("is_checked");
+				int is_favorite  = rs.getInt("is_favorite");
+				int rate = rs.getInt("rate");
+				TodoItem t = new TodoItem(title,description,category,due_date);
+				t.setId(id);
+				t.setIs_checked(is_checked);
+				t.setIs_favorite(is_favorite);
+				t.setRate(rate);
+				t.setCurrent_date(current_date);
+				list.add(t);
+			}
+			pstmt.close();
+		}catch(SQLException e) {
+			e.printStackTrace();
+		}
+		return list;
+	}
+	
+	public ArrayList<TodoItem> getListFavorite(){
+		ArrayList<TodoItem> list =  new ArrayList<TodoItem>();
+		PreparedStatement pstmt;
+		try {
+			String sql = "select * from list inner join cate on list.id = cate.id where list.is_favorite = 1";
+			pstmt = conn.prepareStatement(sql);
+			ResultSet rs = pstmt.executeQuery();
+			while(rs.next()) {
+				int id = rs.getInt("id");
+				String category = rs.getString("category");
+				String title = rs.getString("title");
+				String description = rs.getString("memo");
+				String due_date = rs.getString("due_date");
+				String current_date = rs.getString("current_date");
+				int is_checked = rs.getInt("is_checked");
+				int is_favorite  = rs.getInt("is_favorite");
+				int rate = rs.getInt("rate");
+				TodoItem t = new TodoItem(title,description,category,due_date);
+				t.setId(id);
+				t.setIs_checked(is_checked);
+				t.setIs_favorite(is_favorite);
+				t.setRate(rate);
+				t.setCurrent_date(current_date);
+				list.add(t);
+			}
+			pstmt.close();
+		}catch(SQLException e) {
+			e.printStackTrace();
+		}
+		return list;
+	}
+	
+	void editItem(TodoItem t, TodoItem updated) {
+		int index = list.indexOf(t);
+		list.remove(index);
+		list.add(updated);
 	}
 
 	public void sortByName() {
@@ -294,6 +402,23 @@ public class TodoList {
 			System.out.println(records+" records read!!");
 			br.close();
 		}catch(Exception e) {
+			e.printStackTrace();
+		}
+	}
+	
+	public void completeItem(int index) {
+		String sql = "update list set is_checked = ? ,rate = ?"
+				+"where id = ?;";
+		PreparedStatement pstmt;
+		int count = 0;
+		try {
+			pstmt = conn.prepareStatement(sql);
+			pstmt.setInt(1, 1);
+			pstmt.setInt(2, 100);
+			pstmt.setInt(3, index);
+			count = pstmt.executeUpdate();
+			pstmt.close();
+		}catch(SQLException e) {
 			e.printStackTrace();
 		}
 	}
